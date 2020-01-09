@@ -23,7 +23,7 @@ namespace RPipes
                 {
                     if (result.IsCompleted)
                     {
-                        return encoding.GetString(buffer.FirstSpan);
+                        return encoding.GetString(buffer.ToArray());
                     }
 
                     reader.AdvanceTo(buffer.Start, buffer.End);
@@ -36,7 +36,7 @@ namespace RPipes
                     {
                         result = await reader.ReadAsync().ConfigureAwait(false);
                         buffer = result.Buffer;
-                        byte nextchar = buffer.FirstSpan[0];
+                        byte nextchar = buffer.ToArray()[0];
                         if (nextchar == '\n' || nextchar == '\r')
                         {
                             // advance to next char if its a newline
@@ -50,7 +50,7 @@ namespace RPipes
                         }
                     }
 
-                    return encoding.GetString(line.FirstSpan);
+                    return encoding.GetString(line.ToArray());
                 }
             }
         }
