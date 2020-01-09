@@ -13,11 +13,12 @@ namespace RPipes
 
         private static async Task<string> PipeReadLine(this PipeReader reader, Encoding encoding)
         {
+            byte[] testChars = new byte[] { (byte)'\n', (byte)'\r' };
+
             while (true)
             {
                 ReadResult result = await reader.ReadAsync().ConfigureAwait(false);
                 ReadOnlySequence<byte> buffer = result.Buffer;
-                byte[] testChars = new byte[] { (byte)'\n', (byte)'\r' };
                 SequencePosition? position = buffer.PositionOfAny(testChars);
                 if (position is null)
                 {
@@ -36,7 +37,7 @@ namespace RPipes
                     {
                         result = await reader.ReadAsync().ConfigureAwait(false);
                         buffer = result.Buffer;
-                        byte nextchar = buffer.ToArray()[0];
+                        byte nextchar = buffer.FirstSpan[0];
                         if (nextchar == '\n' || nextchar == '\r')
                         {
                             // advance to next char if its a newline
