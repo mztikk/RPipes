@@ -32,6 +32,7 @@ namespace RPipes
                 else
                 {
                     ReadOnlySequence<byte> line = buffer.Slice(0, position.Value);
+                    string linestring = encoding.GetString(line.ToArray());
                     reader.AdvanceTo(line.End);
                     while (true)
                     {
@@ -51,7 +52,7 @@ namespace RPipes
                         }
                     }
 
-                    return encoding.GetString(line.ToArray());
+                    return linestring;
                 }
             }
         }

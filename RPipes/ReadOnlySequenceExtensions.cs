@@ -10,9 +10,9 @@ namespace RPipes
         /// Returns position of first occurrence of item in the <see cref="ReadOnlySequence{T}"/>
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SequencePosition? PositionOfAny<T>(in this ReadOnlySequence<T> source, ReadOnlySpan<T> values) where T : IEquatable<T> => PositionOfAnyMultiSegment(source, values);
+        public static SequencePosition? PositionOfAny<T>(in this ReadOnlySequence<T> source, in ReadOnlySpan<T> values) where T : IEquatable<T> => PositionOfAnyMultiSegment(source, values);
 
-        private static SequencePosition? PositionOfAnyMultiSegment<T>(in ReadOnlySequence<T> source, ReadOnlySpan<T> values) where T : IEquatable<T>
+        private static SequencePosition? PositionOfAnyMultiSegment<T>(in ReadOnlySequence<T> source, in ReadOnlySpan<T> values) where T : IEquatable<T>
         {
             SequencePosition position = source.Start;
             SequencePosition result = position;
