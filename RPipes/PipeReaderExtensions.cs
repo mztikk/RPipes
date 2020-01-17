@@ -41,16 +41,30 @@ namespace RPipes
                     {
                         result = await reader.ReadAsync().ConfigureAwait(false);
                         buffer = result.Buffer;
-                        byte nextchar = buffer.FirstSpan[0];
-                        if (nextchar == '\n' || nextchar == '\r')
+                        SequencePosition start = buffer.Start;
+                        if (buffer.TryGet(ref start, out ReadOnlyMemory<byte> m, false))
                         {
-                            // advance to next char if its a newline
-                            reader.AdvanceTo(buffer.GetPosition(1));
+                            byte nextchar = m.ToArray()[0];
+
+                            if (nextchar == '\n' || nextchar == '\r')
+                            {
+                                // advance to next char if its a newline
+                                reader.AdvanceTo(buffer.GetPosition(1));
+                            }
+                            else
+                            {
+                                // dont consume char, only signal we examined the next one
+                                reader.AdvanceTo(buffer.Start, buffer.GetPosition(1));
+                                break;
+                            }
                         }
                         else
                         {
-                            // dont consume char, only signal we examined the next one
-                            reader.AdvanceTo(buffer.Start, buffer.GetPosition(1));
+                            if (result.IsCompleted)
+                            {
+                                reader.AdvanceTo(buffer.End);
+                            }
+
                             break;
                         }
                     }
