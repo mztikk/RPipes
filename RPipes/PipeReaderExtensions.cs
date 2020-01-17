@@ -62,17 +62,10 @@ namespace RPipes
 
         public static async IAsyncEnumerable<string> ReadLines(this PipeReader reader)
         {
-            while (true)
+            string line;
+            while ((line = await reader.PipeReadLine().ConfigureAwait(false)).Length > 0)
             {
-                string line = await reader.PipeReadLine().ConfigureAwait(false);
-                if (line.Length > 0)
-                {
-                    yield return line;
-                }
-                else
-                {
-                    break;
-                }
+                yield return line;
             }
         }
 
