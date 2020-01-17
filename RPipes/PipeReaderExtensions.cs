@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
 using System.Text;
@@ -24,7 +25,9 @@ namespace RPipes
                 {
                     if (result.IsCompleted)
                     {
-                        return encoding.GetString(buffer.ToArray());
+                        string rtn = encoding.GetString(buffer.ToArray());
+                        reader.AdvanceTo(buffer.End);
+                        return rtn;
                     }
 
                     reader.AdvanceTo(buffer.Start, buffer.End);
@@ -53,6 +56,22 @@ namespace RPipes
                     }
 
                     return linestring;
+                }
+            }
+        }
+
+        public static async IAsyncEnumerable<string> ReadLines(this PipeReader reader)
+        {
+            while (true)
+            {
+                string line = await reader.PipeReadLine().ConfigureAwait(false);
+                if (line.Length > 0)
+                {
+                    yield return line;
+                }
+                else
+                {
+                    break;
                 }
             }
         }

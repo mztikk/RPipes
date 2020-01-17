@@ -14,9 +14,13 @@ namespace RPipeTests
             Task write = pipe.Writer.FillFrom(bytes);
             byte[] buffer = new byte[1024];
             //Task read = pipe.Reader.PipeReadBytes(buffer);
-            Task readlines = ReadLines(pipe.Reader);
+            //Task readlines = ReadLines(pipe.Reader);
+            await foreach (string line in pipe.Reader.ReadLines())
+            {
+                System.Console.WriteLine(line);
+            }
 
-            await Task.WhenAll(write, readlines);
+            await Task.WhenAll(write);
         }
 
         private static async Task ReadLines(PipeReader reader)
