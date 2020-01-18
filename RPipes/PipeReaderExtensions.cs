@@ -63,6 +63,7 @@ namespace RPipes
                         {
                             char c = (char)buffer.GetAt(0);
                             long advances = 0;
+                            // \n - UNIX   \r\n - DOS   \r - Mac
                             switch (c)
                             {
                                 // if its a \r advance one position and check if next char is a \n
