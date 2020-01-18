@@ -32,10 +32,21 @@ namespace RPipes
 
         public static async Task FillFrom(this PipeWriter writer, byte[] data)
         {
-            using (MemoryStream ms = new MemoryStream(data))
+            while (true)
             {
-                await writer.FillFrom(ms).ConfigureAwait(false);
+                Memory<byte> memory = writer.GetMemory();
+                data.CopyTo(memory);
+                writer.Advance(data.Length);
+
+                FlushResult result = await writer.FlushAsync().ConfigureAwait(false);
+
+                if (result.IsCompleted)
+                {
+                    break;
+                }
             }
+
+            writer.Complete();
         }
     }
 }
