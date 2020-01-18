@@ -51,34 +51,35 @@ namespace RPipes
                         {
                             if (buffer.Length == 1)
                             {
+                                // if the size is 1 and its completed just advance to end
                                 if (result.IsCompleted)
                                 {
                                     reader.AdvanceTo(buffer.End);
                                     break;
                                 }
 
+                                // if the size is 1 and there is more signal that we need more so we can read \r\n
                                 reader.AdvanceTo(buffer.Start, buffer.GetPosition(1));
+                                continue;
                             }
 
-                            ReadOnlySequence<byte> m = buffer.Slice(0, 2);
-                            char c = (char)m.GetAt(0);
+                            char c = (char)buffer.GetAt(0);
                             long advances = 0;
-                            if (IsNewLineChar(c))
+                            switch (c)
                             {
-                                advances++;
-                                if (c == '\r')
-                                {
-                                    if (m.Length == 1)
-                                    {
-                                        reader.AdvanceTo(buffer.Start, buffer.GetPosition(advances));
-                                        continue;
-                                    }
-
-                                    if (m.GetAt(1) == '\n')
+                                // if its a \r advance one position and check if next char is a \n
+                                case '\r':
+                                    advances++;
+                                    if (buffer.GetAt(1) == '\n')
                                     {
                                         advances++;
                                     }
-                                }
+                                    break;
+
+                                // if its a \n just advance one position
+                                case '\n':
+                                    advances++;
+                                    break;
                             }
 
                             reader.AdvanceTo(buffer.GetPosition(advances));
