@@ -47,22 +47,20 @@ namespace RPipes
                         result = await reader.ReadAsync().ConfigureAwait(false);
 
                         buffer = result.Buffer;
-                        if (buffer.Length > 0)
+                        if (buffer.Length == 1)
                         {
-                            if (buffer.Length == 1)
+                            // if the size is 1 and its completed just advance to end
+                            if (result.IsCompleted)
                             {
-                                // if the size is 1 and its completed just advance to end
-                                if (result.IsCompleted)
-                                {
-                                    reader.AdvanceTo(buffer.End);
-                                    break;
-                                }
-
-                                // if the size is 1 and there is more signal that we need more so we can read \r\n
-                                reader.AdvanceTo(buffer.Start, buffer.GetPosition(1));
-                                continue;
+                                reader.AdvanceTo(buffer.End);
+                                break;
                             }
 
+                            // if the size is 1 and there is more signal that we need more so we can read \r\n
+                            reader.AdvanceTo(buffer.Start, buffer.GetPosition(1));
+                        }
+                        else if (buffer.Length > 1)
+                        {
                             char c = (char)buffer.GetAt(0);
                             long advances = 0;
                             switch (c)
@@ -85,13 +83,10 @@ namespace RPipes
                             reader.AdvanceTo(buffer.GetPosition(advances));
                             break;
                         }
-                        else
+                        else if (result.IsCompleted)
                         {
-                            if (result.IsCompleted)
-                            {
-                                reader.AdvanceTo(buffer.End);
-                                break;
-                            }
+                            reader.AdvanceTo(buffer.End);
+                            break;
                         }
                     }
 
