@@ -33,5 +33,24 @@ namespace RPipes
 
             return null;
         }
+
+        public static T GetAt<T>(this ReadOnlySequence<T> sequence, int i)
+        {
+            int count = 0;
+            foreach (ReadOnlyMemory<T> m in sequence)
+            {
+                int total = count + m.Length;
+                if (total <= i)
+                {
+                    count = total;
+                    continue;
+                }
+
+                int index = i - count;
+                return m.Span[index];
+            }
+
+            throw new ArgumentOutOfRangeException();
+        }
     }
 }
