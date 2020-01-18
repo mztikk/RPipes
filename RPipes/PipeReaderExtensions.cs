@@ -49,6 +49,17 @@ namespace RPipes
                         buffer = result.Buffer;
                         if (buffer.Length > 0)
                         {
+                            if (buffer.Length == 1)
+                            {
+                                if (result.IsCompleted)
+                                {
+                                    reader.AdvanceTo(buffer.End);
+                                    break;
+                                }
+
+                                reader.AdvanceTo(buffer.Start, buffer.GetPosition(1));
+                            }
+
                             ReadOnlySequence<byte> m = buffer.Slice(0, 2);
                             char c = (char)m.GetAt(0);
                             long advances = 0;
