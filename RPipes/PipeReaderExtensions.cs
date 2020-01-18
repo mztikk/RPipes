@@ -40,11 +40,12 @@ namespace RPipes
                     while (true)
                     {
                         result = await reader.ReadAsync().ConfigureAwait(false);
+
                         buffer = result.Buffer;
                         SequencePosition start = buffer.Start;
-                        if (buffer.TryGet(ref start, out ReadOnlyMemory<byte> m, false))
+                        if (buffer.TryGet(ref start, out ReadOnlyMemory<byte> m, false) && m.Length > 0)
                         {
-                            byte nextchar = m.ToArray()[0];
+                            byte nextchar = m.Span[0];
 
                             if (nextchar == '\n' || nextchar == '\r')
                             {
