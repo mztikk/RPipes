@@ -10,9 +10,9 @@ namespace RPipes
 {
     public static class PipeReaderExtensions
     {
-        public static async Task<string> PipeReadLine(this PipeReader reader) => await PipeReadLine(reader, Encoding.UTF8).ConfigureAwait(false);
+        public static async Task<string?> PipeReadLine(this PipeReader reader) => await PipeReadLine(reader, Encoding.UTF8).ConfigureAwait(false);
 
-        private static async Task<string> PipeReadLine(this PipeReader reader, Encoding encoding)
+        private static async Task<string?> PipeReadLine(this PipeReader reader, Encoding encoding)
         {
             byte[] testChars = new byte[] { (byte)'\n', (byte)'\r' };
 
@@ -25,6 +25,11 @@ namespace RPipes
                 {
                     if (result.IsCompleted)
                     {
+                        if (buffer.Length == 0)
+                        {
+                            return null;
+                        }
+
                         string rtn = encoding.GetString(buffer.ToArray());
                         reader.AdvanceTo(buffer.End);
                         return rtn;
@@ -36,37 +41,45 @@ namespace RPipes
                 {
                     ReadOnlySequence<byte> line = buffer.Slice(0, position.Value);
                     string linestring = encoding.GetString(line.ToArray());
-                    reader.AdvanceTo(position.Value);
+                    reader.AdvanceTo(line.End);
                     while (true)
                     {
                         result = await reader.ReadAsync().ConfigureAwait(false);
 
                         buffer = result.Buffer;
-                        SequencePosition start = buffer.Start;
-                        if (buffer.TryGet(ref start, out ReadOnlyMemory<byte> m, false) && m.Length > 0)
+                        if (buffer.Length > 0)
                         {
-                            byte nextchar = m.Span[0];
+                            ReadOnlySequence<byte> m = buffer.Slice(0, 2);
+                            char c = (char)m.GetAt(0);
+                            long advances = 0;
+                            if (IsNewLineChar(c))
+                            {
+                                advances++;
+                                if (c == '\r')
+                                {
+                                    if (m.Length == 1)
+                                    {
+                                        reader.AdvanceTo(buffer.Start, buffer.GetPosition(advances));
+                                        continue;
+                                    }
 
-                            if (nextchar == '\n' || nextchar == '\r')
-                            {
-                                // advance to next char if its a newline
-                                reader.AdvanceTo(buffer.GetPosition(1));
+                                    if (m.GetAt(1) == '\n')
+                                    {
+                                        advances++;
+                                    }
+                                }
                             }
-                            else
-                            {
-                                // dont consume char, only signal we examined the next one
-                                reader.AdvanceTo(buffer.Start, buffer.GetPosition(1));
-                                break;
-                            }
+
+                            reader.AdvanceTo(buffer.GetPosition(advances));
+                            break;
                         }
                         else
                         {
                             if (result.IsCompleted)
                             {
                                 reader.AdvanceTo(buffer.End);
+                                break;
                             }
-
-                            break;
                         }
                     }
 
@@ -78,7 +91,7 @@ namespace RPipes
         public static async IAsyncEnumerable<string> ReadLines(this PipeReader reader)
         {
             string line;
-            while ((line = await reader.PipeReadLine().ConfigureAwait(false)).Length > 0)
+            while ((line = await reader.PipeReadLine().ConfigureAwait(false)) is { })
             {
                 yield return line;
             }
@@ -105,5 +118,7 @@ namespace RPipes
             bytes.CopyTo(buffer);
             reader.AdvanceTo(readBuffer.GetPosition(wantedBytes));
         }
+
+        public static bool IsNewLineChar(char c) => c == '\n' || c == '\r';
     }
 }
