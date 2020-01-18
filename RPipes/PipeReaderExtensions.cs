@@ -36,7 +36,7 @@ namespace RPipes
                 {
                     ReadOnlySequence<byte> line = buffer.Slice(0, position.Value);
                     string linestring = encoding.GetString(line.ToArray());
-                    reader.AdvanceTo(line.End);
+                    reader.AdvanceTo(position.Value);
                     while (true)
                     {
                         result = await reader.ReadAsync().ConfigureAwait(false);

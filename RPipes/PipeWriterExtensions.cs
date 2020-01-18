@@ -9,11 +9,9 @@ namespace RPipes
     {
         public static async Task FillFrom(this PipeWriter writer, Stream stream)
         {
-            const int minimumBufferSize = 512;
-
             while (true)
             {
-                Memory<byte> memory = writer.GetMemory(minimumBufferSize);
+                Memory<byte> memory = writer.GetMemory();
                 int bytesRead = await stream.ReadAsync(memory).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
