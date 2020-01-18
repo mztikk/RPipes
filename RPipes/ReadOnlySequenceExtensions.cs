@@ -50,7 +50,7 @@ namespace RPipes
                 return m.Span[index];
             }
 
-            throw new ArgumentOutOfRangeException();
+            throw new IndexOutOfRangeException();
         }
     }
 }
