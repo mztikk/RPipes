@@ -8,8 +8,8 @@ namespace RPipes.Test.PipeReaderTests
     [TestClass]
     public class ReadLineTests
     {
-        private readonly string[] _files = new[] { "LoremIpsum100.txt", "LoremIpsum1000.txt", "LoremIpsum100000.txt" };
-        private readonly long[] _lengths = new long[] { 199, 1999, 199999 };
+        private readonly string[] _files = new[] { "LoremIpsum100.txt", "LoremIpsum1000.txt" };
+        private readonly long[] _lengths = new long[] { 199, 1999 };
 
         [TestMethod]
         public async Task ReadLines()

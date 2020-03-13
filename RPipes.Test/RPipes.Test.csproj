@@ -9,7 +9,6 @@
   <ItemGroup>
     <None Remove="LoremIpsum100.txt" />
     <None Remove="LoremIpsum1000.txt" />
-    <None Remove="LoremIpsum100000.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,9 +16,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="LoremIpsum1000.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="LoremIpsum100000.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
